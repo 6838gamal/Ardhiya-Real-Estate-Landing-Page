@@ -1,0 +1,40 @@
+{% macro btn_primary(text, href=None, type="button", extra="") %}
+{% if href %}
+<a href="{{ href }}" class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 rounded-xl bg-brand text-white font-semibold text-base hover:bg-brand-dark transition-colors duration-200 shadow-md hover:shadow-lg {{ extra }}">
+  {{ text }}
+</a>
+{% else %}
+<button type="{{ type }}" class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 rounded-xl bg-brand text-white font-semibold text-base hover:bg-brand-dark transition-colors duration-200 shadow-md hover:shadow-lg {{ extra }}">
+  {{ text }}
+</button>
+{% endif %}
+{% endmacro %}
+
+{% macro btn_secondary(text, href=None, type="button", extra="") %}
+{% if href %}
+<a href="{{ href }}" class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 rounded-xl bg-white text-brand border-2 border-brand font-semibold text-base hover:bg-brand-50 transition-colors duration-200 {{ extra }}">
+  {{ text }}
+</a>
+{% else %}
+<button type="{{ type }}" class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 rounded-xl bg-white text-brand border-2 border-brand font-semibold text-base hover:bg-brand-50 transition-colors duration-200 {{ extra }}">
+  {{ text }}
+</button>
+{% endif %}
+{% endmacro %}
+
+{% macro choice_card(icon, title, desc, action, extra="") %}
+<div class="choice-card group cursor-pointer rounded-2xl border-2 border-gray-200 hover:border-brand p-6 sm:p-8 transition-all duration-200 hover:shadow-xl bg-white {{ extra }}"
+     {{ action | safe }}>
+  <div class="w-14 h-14 rounded-xl bg-brand-50 flex items-center justify-center mb-4 group-hover:bg-brand group-hover:scale-110 transition-all duration-200">
+    <span class="text-3xl">{{ icon }}</span>
+  </div>
+  <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{{ title }}</h3>
+  <p class="text-gray-600 text-sm sm:text-base leading-relaxed">{{ desc }}</p>
+</div>
+{% endmacro %}
+
+{% macro section_title(text, extra="") %}
+<h2 class="text-2xl xs:text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-8 sm:mb-12 {{ extra }}">{{ text }}</h2>
+{% endmacro %}
+
+# file: app/templates/macros/ui.html

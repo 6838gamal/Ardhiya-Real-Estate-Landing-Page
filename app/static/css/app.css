@@ -1,0 +1,38 @@
+html, body {
+  overflow-x: hidden;
+}
+
+[x-cloak] {
+  display: none !important;
+}
+
+@media (max-width: 360px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+  .choice-card {
+    padding: 1rem;
+  }
+  a, button {
+    font-size: 0.875rem;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f3f4f6;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+# file: app/static/css/app.css

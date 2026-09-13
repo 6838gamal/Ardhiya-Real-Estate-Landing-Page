@@ -1,0 +1,59 @@
+{% import "macros/ui.html" as ui %}
+{% import "macros/forms.html" as forms %}
+
+<div class="bg-gray-50 rounded-2xl p-4 sm:p-6 md:p-8 border border-gray-200">
+  <div class="flex items-center justify-between mb-6">
+    <h3 class="text-xl sm:text-2xl font-bold text-gray-900">{{ t('image.title') }}</h3>
+    <button type="button" @click="mode='choose'"
+      class="text-sm text-gray-500 hover:text-brand transition-colors flex items-center gap-1">
+      <span>←</span> {{ t('methods.back') }}
+    </button>
+  </div>
+
+  <p class="text-gray-600 text-sm sm:text-base mb-6">{{ t('image.subtitle') }}</p>
+
+  <form action="/{{ lang }}/requests/image" method="POST" enctype="multipart/form-data"
+        class="space-y-5"
+        x-data="{ dragging: false, preview: null, fileName: '' }">
+    <input type="hidden" name="session_id" id="session_id_image">
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+      {{ forms.field_text('phone', t('form.phone'), type='tel', placeholder='+966...') }}
+    </div>
+
+    {{ forms.field_textarea('notes', t('form.notes'), rows=2) }}
+
+    <div
+      @dragover.prevent="dragging = true"
+      @dragleave.prevent="dragging = false"
+      @drop.prevent="dragging = false; $refs.fileInput.files = $event.dataTransfer.files; preview = URL.createObjectURL($event.dataTransfer.files[0]); fileName = $event.dataTransfer.files[0].name"
+      @click="$refs.fileInput.click()"
+      :class="dragging ? 'border-brand bg-brand-50' : 'border-gray-300 bg-white hover:border-brand'"
+      class="cursor-pointer rounded-2xl border-2 border-dashed p-8 sm:p-10 text-center transition-all duration-200"
+    >
+      <template x-if="!preview">
+        <div>
+          <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center mb-4">
+            <span class="text-3xl">📸</span>
+          </div>
+          <p class="text-gray-600 font-medium text-sm sm:text-base mb-1">{{ t('image.drop') }}</p>
+          <p class="text-gray-400 text-xs sm:text-sm">{{ t('image.formats') }}</p>
+        </div>
+      </template>
+      <template x-if="preview">
+        <div>
+          <img :src="preview" alt="preview" class="max-h-48 mx-auto rounded-xl mb-3 object-contain">
+          <p class="text-brand text-sm font-medium" x-text="fileName"></p>
+        </div>
+      </template>
+      <input type="file" name="file" accept="image/jpeg,image/png,image/webp" x-ref="fileInput" class="hidden"
+        @change="preview = URL.createObjectURL($event.target.files[0]); fileName = $event.target.files[0].name">
+    </div>
+
+    <div class="pt-2">
+      {{ ui.btn_primary(t('image.submit'), type='submit', extra='w-full') }}
+    </div>
+  </form>
+</div>
+
+# file: app/templates/landing/partials/image_form.html

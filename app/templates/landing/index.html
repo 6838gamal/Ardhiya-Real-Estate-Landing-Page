@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% import "macros/ui.html" as ui %}
+
+{% block content %}
+  {% if show_soon %}
+  <div class="min-h-[60vh] flex items-center justify-center px-4">
+    <div class="text-center">
+      <div class="w-20 h-20 mx-auto rounded-full bg-brand-50 flex items-center justify-center mb-6">
+        <span class="text-4xl">🏗️</span>
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">{{ t('nav.browse') }}</h2>
+      <p class="text-gray-500 text-base sm:text-lg">{{ t('brand.tagline') }}</p>
+      <div class="mt-8">
+        {{ ui.btn_primary(t('nav.start'), href='/' ~ lang ~ '#search-methods') }}
+      </div>
+    </div>
+  </div>
+  {% else %}
+  {% include "landing/partials/hero.html" %}
+  {% include "landing/partials/search_methods.html" %}
+  {% include "landing/partials/how_it_works.html" %}
+  {% include "landing/partials/final_cta.html" %}
+  {% endif %}
+{% endblock %}
+
+# file: app/templates/landing/index.html

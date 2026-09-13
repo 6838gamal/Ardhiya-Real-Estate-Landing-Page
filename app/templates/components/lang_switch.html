@@ -1,0 +1,11 @@
+<div class="flex items-center gap-1 rounded-lg border border-gray-200 p-0.5">
+  <a href="/ar{{ request.url.path | replace('/en', '') | replace('/ar', '') }}"
+     class="px-2.5 py-1 rounded-md text-sm font-medium transition-colors {% if lang == 'ar' %}bg-brand text-white{% else %}text-gray-600 hover:text-brand{% endif %}">
+    ع
+  </a>
+  <a href="/en{{ request.url.path | replace('/ar', '') | replace('/en', '') }}"
+     class="px-2.5 py-1 rounded-md text-sm font-medium transition-colors {% if lang == 'en' %}bg-brand text-white{% else %}text-gray-600 hover:text-brand{% endif %}">
+    EN
+  </a>
+</div>
+# file: app/templates/components/lang_switch.html

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% import "macros/ui.html" as ui %}
+
+{% block content %}
+<section class="py-16 sm:py-20 md:py-24 min-h-[60vh] flex items-center justify-center">
+  <div class="max-w-2xl mx-auto px-4 sm:px-6 md:px-8 w-full">
+    {% if done %}
+    <div class="text-center mb-8">
+      <div class="w-20 h-20 mx-auto rounded-full bg-brand-50 flex items-center justify-center mb-6">
+        <span class="text-4xl">✓</span>
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">{{ t('next.title') }}</h2>
+      <p class="text-gray-600 text-base sm:text-lg">{{ t('next.search_for_me_desc') }}</p>
+    </div>
+    <div class="text-center">
+      {{ ui.btn_primary(t('nav.start'), href='/' ~ lang) }}
+    </div>
+    {% else %}
+    <div class="text-center mb-8 sm:mb-10">
+      <h2 class="text-2xl xs:text-3xl sm:text-4xl font-bold text-gray-900 mb-3">{{ t('next.title') }}</h2>
+      <p class="text-gray-600 text-base sm:text-lg">{{ t('next.question') }}</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+      <form action="/{{ lang }}/requests/{{ req.id }}/intent" method="POST" class="group">
+        <input type="hidden" name="intent" value="search_for_me">
+        <button type="submit" class="w-full text-start rounded-2xl border-2 border-gray-200 hover:border-brand p-6 sm:p-8 transition-all duration-200 hover:shadow-xl bg-white cursor-pointer">
+          <div class="w-14 h-14 rounded-xl bg-brand-50 flex items-center justify-center mb-4 group-hover:bg-brand group-hover:scale-110 transition-all duration-200">
+            <span class="text-3xl">🔎</span>
+          </div>
+          <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{{ t('next.search_for_me') }}</h3>
+          <p class="text-gray-600 text-sm sm:text-base leading-relaxed">{{ t('next.search_for_me_desc') }}</p>
+        </button>
+      </form>
+
+      <form action="/{{ lang }}/requests/{{ req.id }}/intent" method="POST" class="group">
+        <input type="hidden" name="intent" value="browse_myself">
+        <button type="submit" class="w-full text-start rounded-2xl border-2 border-gray-200 hover:border-brand p-6 sm:p-8 transition-all duration-200 hover:shadow-xl bg-white cursor-pointer">
+          <div class="w-14 h-14 rounded-xl bg-brand-50 flex items-center justify-center mb-4 group-hover:bg-brand group-hover:scale-110 transition-all duration-200">
+            <span class="text-3xl">🏠</span>
+          </div>
+          <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{{ t('next.browse_myself') }}</h3>
+          <p class="text-gray-600 text-sm sm:text-base leading-relaxed">{{ t('next.browse_myself_desc') }}</p>
+        </button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+# file: app/templates/buyer_requests/next.html

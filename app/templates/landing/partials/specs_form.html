@@ -1,0 +1,46 @@
+{% import "macros/ui.html" as ui %}
+{% import "macros/forms.html" as forms %}
+
+<div class="bg-gray-50 rounded-2xl p-4 sm:p-6 md:p-8 border border-gray-200">
+  <div class="flex items-center justify-between mb-6">
+    <h3 class="text-xl sm:text-2xl font-bold text-gray-900">{{ t('methods.specs_title') }}</h3>
+    <button type="button" @click="mode='choose'"
+      class="text-sm text-gray-500 hover:text-brand transition-colors flex items-center gap-1">
+      <span>←</span> {{ t('methods.back') }}
+    </button>
+  </div>
+
+  <form action="/{{ lang }}/requests/specs" method="POST" class="space-y-5">
+    <input type="hidden" name="session_id" id="session_id_specs">
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+      {{ forms.field_select('property_type', t('form.property_type'),
+        [('land', t('form.property_type')), ('building', t('form.property_type')), ('apartment', t('form.property_type'))]) }}
+      {{ forms.field_select('city', t('form.city'),
+        [('riyadh', 'الرياض'), ('jeddah', 'جدة'), ('dammam', 'الدمام')]) }}
+      {{ forms.field_text('district', t('form.district'), placeholder=t('form.district')) }}
+      {{ forms.field_text('area', t('form.area'), type='number', placeholder='0') }}
+      {{ forms.field_text('budget_min', t('form.budget_min'), type='number', placeholder='0') }}
+      {{ forms.field_text('budget_max', t('form.budget_max'), type='number', placeholder='0') }}
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+      {{ forms.radio_group('purpose', t('form.purpose'), [
+        ('residential', t('form.purpose.residential')),
+        ('investment', t('form.purpose.investment')),
+        ('commercial', t('form.purpose.commercial')),
+        ('other', t('form.purpose.other'))
+      ]) }}
+    </div>
+
+    {{ forms.field_textarea('notes', t('form.notes'), rows=3) }}
+
+    {{ forms.field_text('phone', t('form.phone'), type='tel', placeholder='+966...') }}
+
+    <div class="pt-2">
+      {{ ui.btn_primary(t('form.continue'), type='submit', extra='w-full') }}
+    </div>
+  </form>
+</div>
+
+# file: app/templates/landing/partials/specs_form.html
