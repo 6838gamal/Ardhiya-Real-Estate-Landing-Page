@@ -11,7 +11,7 @@
       {{ t('hero.subtitle') }}
     </p>
     <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-      {# تغيير الزر الأساسي ليصبح زر عادي بدلاً من رابط #}
+      {# الزر الأساسي: أصبح زر فتح النافذة بدلاً من رابط #}
       <button 
         type="button"
         id="hero-cta-primary"
@@ -35,17 +35,17 @@
   {# الخلفية المعتمة #}
   <div 
     id="hero-modal-overlay" 
-    class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+    class="absolute inset-0 bg-black/50 backdrop-blur-sm"
   ></div>
 
   {# محتوى النافذة #}
-  <div class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 sm:p-8 transform transition-all">
+  <div class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 sm:p-8">
     {# زر الإغلاق #}
     <button 
       type="button"
       id="hero-modal-close"
       class="absolute top-4 end-4 text-gray-400 hover:text-gray-600 transition-colors"
-      aria-label="إغلاق"
+      aria-label="{{ t('hero.modal_close') }}"
     >
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -61,12 +61,12 @@
 
     {# العنوان #}
     <h3 id="hero-modal-title" class="text-xl sm:text-2xl font-bold text-gray-900 text-center mb-3">
-      {{ t('hero.modal_title') if t('hero.modal_title') != 'hero.modal_title' else 'المنصة قيد التجهيز' }}
+      {{ t('hero.modal_title') }}
     </h3>
 
     {# النص #}
     <p class="text-gray-600 text-center leading-relaxed mb-6">
-      {{ t('hero.modal_message') if t('hero.modal_message') != 'hero.modal_message' else 'المنصة قيد استقبال ومعالجة البيانات من الوكلاء. وإلى أن يتم العمل يمكنك إرسال طلب بحثك أو مراسلتنا في حال كان لديك طلب ريثما تتجهز البيانات.' }}
+      {{ t('hero.modal_message') }}
     </p>
 
     {# أزرار الإجراء #}
@@ -75,13 +75,13 @@
         href="/{{ lang }}/contact" 
         class="flex-1 inline-flex items-center justify-center px-5 py-3 rounded-lg bg-brand text-white font-semibold hover:bg-brand-dark transition-colors"
       >
-        {{ t('hero.modal_contact') if t('hero.modal_contact') != 'hero.modal_contact' else 'مراسلتنا' }}
+        {{ t('hero.modal_contact') }}
       </a>
       <a 
         href="/{{ lang }}/request" 
         class="flex-1 inline-flex items-center justify-center px-5 py-3 rounded-lg border-2 border-brand text-brand font-semibold hover:bg-brand-50 transition-colors"
       >
-        {{ t('hero.modal_request') if t('hero.modal_request') != 'hero.modal_request' else 'إرسال طلب بحث' }}
+        {{ t('hero.modal_request') }}
       </a>
     </div>
   </div>
