@@ -11,9 +11,78 @@
       {{ t('hero.subtitle') }}
     </p>
     <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-      {{ ui.btn_primary(t('hero.cta_primary'), href='/' ~ lang ~ '#search-methods') }}
+      {# تغيير الزر الأساسي ليصبح زر عادي بدلاً من رابط #}
+      <button 
+        type="button"
+        id="hero-cta-primary"
+        class="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-brand text-white font-semibold hover:bg-brand-dark transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2"
+      >
+        {{ t('hero.cta_primary') }}
+      </button>
       {{ ui.btn_secondary(t('hero.cta_secondary'), href='/' ~ lang ~ '/properties') }}
     </div>
   </div>
 </section>
 
+{# ===== النافذة المنبثقة ===== #}
+<div 
+  id="hero-modal" 
+  class="fixed inset-0 z-50 hidden items-center justify-center p-4"
+  role="dialog" 
+  aria-modal="true" 
+  aria-labelledby="hero-modal-title"
+>
+  {# الخلفية المعتمة #}
+  <div 
+    id="hero-modal-overlay" 
+    class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+  ></div>
+
+  {# محتوى النافذة #}
+  <div class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 sm:p-8 transform transition-all">
+    {# زر الإغلاق #}
+    <button 
+      type="button"
+      id="hero-modal-close"
+      class="absolute top-4 end-4 text-gray-400 hover:text-gray-600 transition-colors"
+      aria-label="إغلاق"
+    >
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+
+    {# أيقونة #}
+    <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-brand-50">
+      <svg class="w-8 h-8 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+    </div>
+
+    {# العنوان #}
+    <h3 id="hero-modal-title" class="text-xl sm:text-2xl font-bold text-gray-900 text-center mb-3">
+      {{ t('hero.modal_title') if t('hero.modal_title') != 'hero.modal_title' else 'المنصة قيد التجهيز' }}
+    </h3>
+
+    {# النص #}
+    <p class="text-gray-600 text-center leading-relaxed mb-6">
+      {{ t('hero.modal_message') if t('hero.modal_message') != 'hero.modal_message' else 'المنصة قيد استقبال ومعالجة البيانات من الوكلاء. وإلى أن يتم العمل يمكنك إرسال طلب بحثك أو مراسلتنا في حال كان لديك طلب ريثما تتجهز البيانات.' }}
+    </p>
+
+    {# أزرار الإجراء #}
+    <div class="flex flex-col sm:flex-row gap-3">
+      <a 
+        href="/{{ lang }}/contact" 
+        class="flex-1 inline-flex items-center justify-center px-5 py-3 rounded-lg bg-brand text-white font-semibold hover:bg-brand-dark transition-colors"
+      >
+        {{ t('hero.modal_contact') if t('hero.modal_contact') != 'hero.modal_contact' else 'مراسلتنا' }}
+      </a>
+      <a 
+        href="/{{ lang }}/request" 
+        class="flex-1 inline-flex items-center justify-center px-5 py-3 rounded-lg border-2 border-brand text-brand font-semibold hover:bg-brand-50 transition-colors"
+      >
+        {{ t('hero.modal_request') if t('hero.modal_request') != 'hero.modal_request' else 'إرسال طلب بحث' }}
+      </a>
+    </div>
+  </div>
+</div>
