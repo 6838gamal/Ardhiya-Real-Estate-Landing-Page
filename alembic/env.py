@@ -5,20 +5,34 @@ from sqlalchemy import engine_from_config, pool
 
 from app.core.config import settings
 from app.core.database import Base
-from app.modules.buyer_requests import models as br_models
-from app.modules.media import models as media_models
-from app.modules.properties import models as prop_models
+
+# ⭐ استيراد موحّد لكل الموديلات — يضمن تسجيلها في registry
+from app.db import base  # noqa: F401
+
 
 config = context.config
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+# ضبط عنوان قاعدة البيانات من الإعدادات
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
 target_metadata = Base.metadata
 
 
+# ---------------------------------------------------------------
+# تجاهل جداول النظام
+# ---------------------------------------------------------------
+def include_object(object, name, type_, reflected, compare_to):
+    if type_ == "table" and name in {"alembic_version"}:
+        return False
+    return True
+
+
+# ---------------------------------------------------------------
+# Offline mode
+# ---------------------------------------------------------------
 def run_migrations_offline() -> None:
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
@@ -26,21 +40,32 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        compare_type=True,
+        compare_server_default=True,
+        include_object=include_object,
     )
     with context.begin_transaction():
         context.run_migrations()
 
 
+# ---------------------------------------------------------------
+# Online mode
+# ---------------------------------------------------------------
 def run_migrations_online() -> None:
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
+
     with connectable.connect() as connection:
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
+            compare_type=True,
+            compare_server_default=True,
+            render_as_batch=True,          # مهم لـ SQLite
+            include_object=include_object,
         )
         with context.begin_transaction():
             context.run_migrations()
@@ -50,5 +75,3 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
-
-# file: alembic/env.py
