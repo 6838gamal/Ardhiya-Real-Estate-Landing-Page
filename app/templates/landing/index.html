@@ -11,10 +11,105 @@
       <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">{{ t('nav.browse') }}</h2>
       <p class="text-gray-500 text-base sm:text-lg">{{ t('brand.tagline') }}</p>
       <div class="mt-8">
-        {{ ui.btn_primary(t('nav.start'), href='/' ~ lang ~ '#search-methods') }}
+        <button 
+          type="button"
+          id="browse-cta-primary"
+          class="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-brand text-white font-semibold hover:bg-brand-dark transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2"
+        >
+          {{ t('nav.start') }}
+        </button>
       </div>
     </div>
   </div>
+
+  {# ===== نافذة منبثقة خاصة بصفحة browse ===== #}
+  <div 
+    id="browse-modal" 
+    class="fixed inset-0 z-50 hidden items-center justify-center p-4"
+    role="dialog" 
+    aria-modal="true" 
+    aria-labelledby="browse-modal-title"
+  >
+    <div 
+      id="browse-modal-overlay" 
+      class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+    ></div>
+
+    <div class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 sm:p-8">
+      <button 
+        type="button"
+        id="browse-modal-close"
+        class="absolute top-4 end-4 text-gray-400 hover:text-gray-600 transition-colors"
+        aria-label="{{ t('hero.modal_close') }}"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+
+      <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-brand-50">
+        <svg class="w-8 h-8 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+
+      <h3 id="browse-modal-title" class="text-xl sm:text-2xl font-bold text-gray-900 text-center mb-3">
+        {{ t('hero.modal_title') }}
+      </h3>
+
+      <p class="text-gray-600 text-center leading-relaxed mb-6">
+        {{ t('hero.modal_message') }}
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-3">
+        
+        <a 
+          href='/' ~ lang ~ '#search-methods'
+          class="flex-1 inline-flex items-center justify-center px-5 py-3 rounded-lg border-2 border-brand text-brand font-semibold hover:bg-brand-50 transition-colors"
+        >
+          {{ t('cta.send') }}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    const modal = document.getElementById('browse-modal');
+    const openBtn = document.getElementById('browse-cta-primary');
+    const closeBtn = document.getElementById('browse-modal-close');
+    const overlay = document.getElementById('browse-modal-overlay');
+
+    if (!modal || !openBtn) return;
+
+    function openModal() {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+
+    openBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      openModal();
+    });
+
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (overlay) overlay.addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        closeModal();
+      }
+    });
+  })();
+  </script>
+
   {% else %}
   {% include "landing/partials/hero.html" %}
   {% include "landing/partials/search_methods.html" %}
@@ -22,5 +117,3 @@
   {% include "landing/partials/final_cta.html" %}
   {% endif %}
 {% endblock %}
-
-
