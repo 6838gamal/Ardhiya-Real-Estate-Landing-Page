@@ -1,11 +1,15 @@
 import enum
-from datetime import datetime
-from typing import Optional, List
+from datetime import datetime, timezone
+from typing import List, Optional
 
 from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
+
+
+def utc_now() -> datetime:
+    return datetime.now(timezone.utc)
 
 
 class RequestSource(enum.Enum):
@@ -22,9 +26,15 @@ class BuyerRequest(Base):
     __tablename__ = "buyer_requests"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    session_id: Mapped[Optional[str]] = mapped_column(String(64), index=True, nullable=True)
-    source: Mapped[RequestSource] = mapped_column(Enum(RequestSource), nullable=False)
-    intent: Mapped[Optional[RequestIntent]] = mapped_column(Enum(RequestIntent), nullable=True)
+    session_id: Mapped[Optional[str]] = mapped_column(
+        String(64), index=True, nullable=True
+    )
+    source: Mapped[RequestSource] = mapped_column(
+        Enum(RequestSource), nullable=False
+    )
+    intent: Mapped[Optional[RequestIntent]] = mapped_column(
+        Enum(RequestIntent), nullable=True
+    )
     property_type: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     city: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     district: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
@@ -35,11 +45,18 @@ class BuyerRequest(Base):
     features: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     phone: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now, nullable=False
+    )
 
     images: Mapped[List["RequestImage"]] = relationship(
-        "RequestImage", back_populates="request", cascade="all, delete-orphan"
+        "RequestImage",
+        back_populates="request",
+        cascade="all, delete-orphan",
     )
+
+    def __repr__(self) -> str:
+        return f"<BuyerRequest id={self.id} source={self.source}>"
 
 
 class RequestImage(Base):
@@ -47,13 +64,21 @@ class RequestImage(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     request_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("buyer_requests.id", ondelete="CASCADE"), nullable=False
+        Integer,
+        ForeignKey("buyer_requests.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     storage_path: Mapped[str] = mapped_column(String(255), nullable=False)
     image_type: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now, nullable=False
+    )
 
-    request: Mapped["BuyerRequest"] = relationship("BuyerRequest", back_populates="images")
+    request: Mapped["BuyerRequest"] = relationship(
+        "BuyerRequest",
+        back_populates="images",
+    )
 
-
-# file: app/modules/buyer_requests/models.py
+    def __repr__(self) -> str:
+        return f"<RequestImage id={self.id} request_id={self.request_id}>"
