@@ -7,3 +7,9 @@ alembic==1.14.1
 pydantic-settings==2.7.1
 python-dotenv==1.0.1
 # file: requirements.txt
+
+
+
+
+psycopg[binary]>=3.1
+supabase>=2.0
