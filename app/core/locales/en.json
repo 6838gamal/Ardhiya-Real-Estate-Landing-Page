@@ -50,5 +50,14 @@
   "next.search_for_me": "Search For Me",
   "next.search_for_me_desc": "Our team will search for the best properties for you and contact you",
   "next.browse_myself": "Browse Myself",
-  "next.browse_myself_desc": "We will show you matching properties and you can browse freely"
+  "next.browse_myself_desc": "We will show you matching properties and you can browse freely",
+
+  
+  "hero.modal_title": "Platform Under Preparation",
+  "hero.modal_message": "The platform is currently receiving and processing data from agents. Until it's ready, you can send your search request or contact us if you have a request while the data is being prepared.",
+  "hero.modal_contact": "Contact Us",
+  "hero.modal_request": "Send Search Request",
+  "hero.modal_close": "Close"
+
+
 }
