@@ -7,6 +7,13 @@
 - Supabase Storage للصور والفيديوهات
 - تخزين محلي كبديل
 - i18n (عربي/إنجليزي)
+
+⚠️ جميع القيم الحساسة تُقرأ من متغيرات البيئة:
+- DATABASE_URL
+- SUPABASE_URL
+- SUPABASE_SECRET_KEY
+- SUPABASE_PUBLIC_KEY
+- SECRET_KEY
 """
 
 from pathlib import Path
@@ -43,7 +50,12 @@ class Settings(BaseSettings):
     # -----------------------------------------------------------
     # Supabase — Storage (للصور والفيديوهات)
     # -----------------------------------------------------------
-    SUPABASE_URL: Optional[str] = None
+    # ⚠️ لا تضع قيمة صلبة هنا — يُقرأ من متغير البيئة SUPABASE_URL
+    # في التطوير: اتركه فارغاً → local storage
+    # في الإنتاج: اضبطه عبر Environment Variable
+    # مثال: https://xxxx.supabase.co
+    SUPABASE_URL: str = ""
+
     SUPABASE_PUBLIC_KEY: Optional[SecretStr] = None
     SUPABASE_SECRET_KEY: Optional[SecretStr] = None
 
@@ -133,6 +145,35 @@ class Settings(BaseSettings):
             return v.replace("postgres://", "postgresql+psycopg://", 1)
         if v.startswith("postgresql://"):
             return v.replace("postgresql://", "postgresql+psycopg://", 1)
+        return v
+
+    # ⭐ SUPABASE_URL — من متغير البيئة فقط
+    @field_validator("SUPABASE_URL", mode="before")
+    @classmethod
+    def _normalize_supabase_url(cls, v: Any) -> str:
+        """
+        تطبيع SUPABASE_URL:
+        - إزالة المسافات
+        - إزالة الشرطة المائلة في النهاية
+        - إرجاع "" إذا كان فارغاً
+        """
+        if v is None:
+            return ""
+        if not isinstance(v, str):
+            return ""
+        return v.strip().rstrip("/")
+
+    @field_validator("SUPABASE_URL")
+    @classmethod
+    def _validate_supabase_url(cls, v: str) -> str:
+        """التحقق من صيغة SUPABASE_URL."""
+        if v == "":
+            # فارغ مقبول في التطوير — سيُرفض في الإنتاج عبر _validate_on_startup
+            return ""
+        if not v.startswith("https://"):
+            raise ValueError(
+                f"SUPABASE_URL يجب أن يبدأ بـ https:// — وصل: {v}"
+            )
         return v
 
     @field_validator("STORAGE_TYPE")
@@ -236,10 +277,12 @@ def render(
 
 
 # ===============================================================
-# Validation on import (in production only)
+# Validation on import
 # ===============================================================
 def _validate_on_startup() -> None:
     """تحقق من الإعدادات الحرجة عند بدء التطبيق."""
+    import warnings as _w
+
     warnings_list: list[str] = []
     errors: list[str] = []
 
@@ -258,13 +301,25 @@ def _validate_on_startup() -> None:
             "هذا غير مستدام على Render. استخدم PostgreSQL (Supabase)."
         )
 
-    # STORAGE_TYPE
-    if settings.STORAGE_TYPE == "supabase" and not settings.supabase_configured:
-        errors.append(
-            "STORAGE_TYPE=supabase لكن SUPABASE_URL أو SUPABASE_SECRET_KEY "
-            "غير مضبوطين بشكل صحيح."
-        )
+    # STORAGE_TYPE=supabase — تحقق مفصّل
+    if settings.STORAGE_TYPE == "supabase":
+        if not settings.SUPABASE_URL:
+            errors.append(
+                "STORAGE_TYPE=supabase لكن SUPABASE_URL غير مضبوط! "
+                "اضبط متغير البيئة SUPABASE_URL=https://xxx.supabase.co"
+            )
+        if not settings.SUPABASE_SECRET_KEY:
+            errors.append(
+                "STORAGE_TYPE=supabase لكن SUPABASE_SECRET_KEY غير مضبوط! "
+                "اضبط متغير البيئة SUPABASE_SECRET_KEY."
+            )
+        if settings.SUPABASE_URL and not settings.supabase_configured:
+            errors.append(
+                "STORAGE_TYPE=supabase لكن SUPABASE_URL أو SUPABASE_SECRET_KEY "
+                "غير صالحين (تحقق من الصيغة)."
+            )
 
+    # STORAGE_TYPE=local في الإنتاج
     if settings.is_production and settings.STORAGE_TYPE == "local":
         warnings_list.append(
             "⚠️  STORAGE_TYPE=local في الإنتاج — "
@@ -274,7 +329,6 @@ def _validate_on_startup() -> None:
 
     # اطبع التحذيرات
     for w in warnings_list:
-        import warnings as _w
         _w.warn(w, UserWarning)
 
     # ارفع الأخطاء في الإنتاج
@@ -282,7 +336,6 @@ def _validate_on_startup() -> None:
         if settings.is_production:
             raise ValueError(" | ".join(errors))
         else:
-            import warnings as _w
             for e in errors:
                 _w.warn(f"[DEV] {e}", UserWarning)
 
