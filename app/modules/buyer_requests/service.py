@@ -1,26 +1,49 @@
 """
-خدمة طلبات المشترين — إنشاء طلبات + رفع صور مرجعية.
+خدمة طلبات المشترين — متوافقة مع routes.py.
 """
 
 import logging
+from typing import Optional
 
-from fastapi import UploadFile
 from sqlalchemy.orm import Session
 
-from app.core.config import settings
-from app.core.storage import (
-    check_size,
-    generate_path,
-    storage,
-    validate_image,
-)
 from app.modules.buyer_requests.models import (
     BuyerRequest,
-    RequestImage,
+    RequestIntent,
     RequestSource,
 )
+from app.modules.buyer_requests.schemas import BuyerRequestCreate
 
 logger = logging.getLogger(__name__)
+
+
+# ===============================================================
+# إنشاء طلب من مواصفات (يستقبل BuyerRequestCreate)
+# ===============================================================
+def create_specs_request(
+    db: Session,
+    data: BuyerRequestCreate,
+) -> BuyerRequest:
+    """
+    ينشئ طلب شراء من مواصفات.
+    يستقبل كائن Pydantic BuyerRequestCreate.
+    """
+    payload = data.model_dump(exclude_none=True)
+
+    # إزالة session_id لأننا نمرره صراحة
+    session_id = payload.pop("session_id", None) or ""
+
+    request = BuyerRequest(
+        session_id=session_id,
+        source=RequestSource.specs,
+        **payload,
+    )
+    db.add(request)
+    db.commit()
+    db.refresh(request)
+
+    logger.info("✅ طلب مواصفات أُنشئ: id=%s", request.id)
+    return request
 
 
 # ===============================================================
@@ -28,9 +51,9 @@ logger = logging.getLogger(__name__)
 # ===============================================================
 def create_image_request(
     db: Session,
-    session_id: str,
-    phone: str,
-    notes: str,
+    session_id: Optional[str],
+    phone: Optional[str],
+    notes: Optional[str],
 ) -> BuyerRequest:
     """ينشئ طلب شراء من صورة."""
     request = BuyerRequest(
@@ -48,67 +71,39 @@ def create_image_request(
 
 
 # ===============================================================
-# إنشاء طلب من مواصفات
+# ⭐ تحديث النية — الدالة المفقودة
 # ===============================================================
-def create_specs_request(
+def update_intent(
     db: Session,
-    session_id: str,
-    **kwargs,
-) -> BuyerRequest:
-    """ينشئ طلب شراء من مواصفات."""
-    request = BuyerRequest(
-        session_id=session_id or "",
-        source=RequestSource.specs,
-        **kwargs,
-    )
-    db.add(request)
+    request_id: int,
+    intent: str | RequestIntent,
+) -> Optional[BuyerRequest]:
+    """
+    يحدّث نية الطلب.
+    يعيد None إذا لم يكن الطلب موجوداً (routes.py يعتمد على ذلك).
+    """
+    request = db.query(BuyerRequest).filter(BuyerRequest.id == request_id).first()
+    if request is None:
+        return None
+
+    if isinstance(intent, str):
+        try:
+            intent = RequestIntent(intent)
+        except ValueError:
+            logger.warning("قيمة نية غير صالحة: %s", intent)
+            return None
+
+    request.intent = intent
     db.commit()
     db.refresh(request)
 
-    logger.info("✅ طلب مواصفات أُنشئ: id=%s", request.id)
+    logger.info("✅ تم تحديث نية الطلب %s إلى %s", request_id, intent.value)
     return request
-
-
-# ===============================================================
-# رفع صورة مرجعية لطلب
-# ===============================================================
-async def upload_request_image(
-    db: Session,
-    request_id: int,
-    file: UploadFile,
-    image_type: str = "reference",
-) -> RequestImage:
-    """يرفع صورة مرجعية لطلب مشترٍ."""
-    validate_image(file)
-    await check_size(file, settings.MAX_IMAGE_MB)
-
-    path = generate_path(
-        prefix=f"requests/{request_id}",
-        filename=file.filename or "image.jpg",
-    )
-
-    url = await storage.upload(
-        file=file,
-        bucket=settings.SUPABASE_BUCKET_REQUESTS,
-        path=path,
-    )
-
-    image = RequestImage(
-        request_id=request_id,
-        storage_path=url,
-        image_type=image_type,
-    )
-    db.add(image)
-    db.commit()
-    db.refresh(image)
-
-    logger.info("✅ صورة مرجعية مرفوعة للطلب %s: %s", request_id, url)
-    return image
 
 
 # ===============================================================
 # جلب طلب
 # ===============================================================
-def get_request(db: Session, request_id: int) -> BuyerRequest | None:
+def get_request(db: Session, request_id: int) -> Optional[BuyerRequest]:
     """يعيد طلباً بواسطة ID."""
     return db.query(BuyerRequest).filter(BuyerRequest.id == request_id).first()
