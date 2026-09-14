@@ -9,7 +9,7 @@ from app.core.config import settings
 
 
 # ---------------------------------------------------------------
-# Naming convention لثبات أسماء القيود (مهم لـ Alembic)
+# Naming convention
 # ---------------------------------------------------------------
 convention = {
     "ix": "ix_%(column_0_label)s",
@@ -29,13 +29,18 @@ if settings.DATABASE_URL.startswith("sqlite"):
 
 engine = create_engine(
     settings.DATABASE_URL,
-    connect_args=_connect_args,
+    echo=settings.DATABASE_ECHO,
     pool_pre_ping=True,
+    pool_size=settings.DB_POOL_SIZE if not settings.DATABASE_URL.startswith("sqlite") else 5,
+    max_overflow=settings.DB_MAX_OVERFLOW if not settings.DATABASE_URL.startswith("sqlite") else 10,
+    pool_timeout=settings.DB_POOL_TIMEOUT,
+    pool_recycle=settings.DB_POOL_RECYCLE,
+    connect_args=_connect_args,
 )
 
 
 # ---------------------------------------------------------------
-# تفعيل Foreign Keys في SQLite (ضروري لـ ON DELETE CASCADE)
+# SQLite Foreign Keys
 # ---------------------------------------------------------------
 @event.listens_for(Engine, "connect")
 def _set_sqlite_pragma(dbapi_connection, connection_record):
