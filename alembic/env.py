@@ -132,12 +132,13 @@ def run_migrations_online() -> None:
         raise
 
     # -----------------------------------------------------------
-    # 2. الاتصال
+    # 2. الاتصال + التكوين + التشغيل
     # -----------------------------------------------------------
     try:
         with connectable.connect() as connection:
-            dialect = connection.engine.url.dialect
-            log(f"✅ Connected to database (dialect={dialect})")
+            # ✅ التصحيح: connection.dialect.name (بدل connection.engine.url.dialect)
+            dialect_name = connection.dialect.name
+            log(f"✅ Connected to database (dialect={dialect_name})")
 
             # ---------------------------------------------------
             # 3. تكوين الـ context
@@ -149,7 +150,7 @@ def run_migrations_online() -> None:
                     compare_type=True,
                     compare_server_default=True,
                     include_object=include_object,
-                    render_as_batch=_is_sqlite(str(connection.engine.url)),
+                    render_as_batch=(dialect_name == "sqlite"),
                 )
                 log("✅ Context configured")
             except Exception as exc:
