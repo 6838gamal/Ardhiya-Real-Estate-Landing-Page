@@ -1,10 +1,12 @@
 import enum
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
+from app.modules.properties.models import Property  # noqa: E402
 
 
 class PropertyImageType(enum.Enum):
@@ -25,7 +27,5 @@ class PropertyImage(Base):
 
     property: Mapped["Property"] = relationship("Property", back_populates="images")
 
-
-from app.modules.properties.models import Property  # noqa: E402
 
 # file: app/modules/media/models.py
