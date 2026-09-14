@@ -1,10 +1,14 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
 from sqlalchemy import DateTime, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
+
+
+def utc_now() -> datetime:
+    return datetime.now(timezone.utc)
 
 
 class Property(Base):
@@ -19,11 +23,16 @@ class Property(Base):
     price: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     area: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     purpose: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-
-    images: Mapped[List["PropertyImage"]] = relationship(
-        "PropertyImage", back_populates="property", cascade="all, delete-orphan"
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now, nullable=False
     )
 
+    # العلاقة النصية تُحل عبر registry (بعد استيراد app.db.base)
+    images: Mapped[List["PropertyImage"]] = relationship(
+        "PropertyImage",
+        back_populates="property",
+        cascade="all, delete-orphan",
+    )
 
-# file: app/modules/properties/models.py
+    def __repr__(self) -> str:
+        return f"<Property id={self.id} title={self.title!r}>"
