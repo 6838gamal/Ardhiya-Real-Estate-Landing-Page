@@ -41,7 +41,7 @@
   <script src="/static/js/app.js"></script>
 
 
-  <script>
+<script>
 (function() {
   const modal = document.getElementById('hero-modal');
   const openBtn = document.getElementById('hero-cta-primary');
@@ -53,11 +53,7 @@
   function openModal() {
     modal.classList.remove('hidden');
     modal.classList.add('flex');
-    document.body.style.overflow = 'hidden'; // منع التمرير
-    // تأثير ظهور
-    requestAnimationFrame(() => {
-      modal.querySelector('.relative').classList.add('scale-100', 'opacity-100');
-    });
+    document.body.style.overflow = 'hidden';
   }
 
   function closeModal() {
@@ -66,19 +62,14 @@
     document.body.style.overflow = '';
   }
 
-  // فتح النافذة
   openBtn.addEventListener('click', function(e) {
     e.preventDefault();
     openModal();
   });
 
-  // إغلاق بزر X
   if (closeBtn) closeBtn.addEventListener('click', closeModal);
-
-  // إغلاق بالنقر على الخلفية
   if (overlay) overlay.addEventListener('click', closeModal);
 
-  // إغلاق بمفتاح Escape
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
       closeModal();
