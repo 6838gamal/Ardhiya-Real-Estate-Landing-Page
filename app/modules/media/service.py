@@ -1,5 +1,5 @@
 """
-خدمة رفع الصور والفيديوهات للعقارات.
+خدمة رفع الصور والفيديوهات للعقارات + طلبات المشترين.
 """
 
 import logging
@@ -17,9 +17,36 @@ from app.core.storage import (
     validate_image,
     validate_video,
 )
+from app.modules.buyer_requests.models import RequestImage
 from app.modules.media.models import PropertyImage
 
 logger = logging.getLogger(__name__)
+
+
+# ===============================================================
+# ⭐ للطلبات — الدالة المطلوبة من routes.py
+# ===============================================================
+def create_request_image(
+    db: Session,
+    request_id: int,
+    storage_path: str,
+    content_type: Optional[str] = None,
+) -> RequestImage:
+    """
+    يسجّل صورة مرجعية لطلب في قاعدة البيانات.
+    (الرفع الفعلي يتم عبر save_upload مسبقاً)
+    """
+    image = RequestImage(
+        request_id=request_id,
+        storage_path=storage_path,
+        image_type=content_type or "reference",
+    )
+    db.add(image)
+    db.commit()
+    db.refresh(image)
+
+    logger.info("✅ create_request_image: request=%s → %s", request_id, storage_path)
+    return image
 
 
 # ===============================================================
