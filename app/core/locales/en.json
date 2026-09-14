@@ -55,8 +55,8 @@
   
   "hero.modal_title": "Platform Under Preparation",
   "hero.modal_message": "The platform is currently receiving and processing data from agents. Until it's ready, you can send your search request or contact us if you have a request while the data is being prepared.",
-  "hero.modal_contact": "Contact Us",
-  "hero.modal_request": "Send Search Request",
+  
+  "cta.send": "Send Search Request",
   "hero.modal_close": "Close"
 
 
